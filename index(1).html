@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="yi" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>והערב — Small System V3</title>
+<style>
+:root{
+  --bg:#f5f3f6;
+  --panel:#ffffff;
+  --panel-2:#fbf9fb;
+  --text:#292633;
+  --muted:#756f7d;
+  --line:#e5dfe7;
+  --accent:#705b7f;
+  --accent-soft:#f1ebf4;
+  --accent-2:#9a7484;
+  --danger:#b95f69;
+  --danger-soft:#fbebed;
+  --pink:#c8879d;
+  --pink-soft:#f9edf2;
+  --yellow:#b89145;
+  --yellow-soft:#faf3e4;
+  --success:#6f849f;
+  --success-soft:#edf1f6;
+  --shadow:0 10px 28px rgba(58,45,67,.07);
+  --shadow-strong:0 16px 42px rgba(58,45,67,.11);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Segoe UI",Arial,sans-serif;
+  min-height:100vh;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 250px;
+}
+.sidebar{
+  background:#fff;
+  border-left:1px solid var(--line);
+  padding:22px 16px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow:auto;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:4px 8px 18px;
+}
+.logo{
+  width:42px;height:42px;border-radius:14px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#65536f,#a97889);
+  color:#fff;font-weight:800;font-size:19px;
+  box-shadow:0 9px 22px rgba(92,68,101,.22);
+}
+.brand h1{font-size:20px;margin:0}
+.brand small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.nav{
+  display:flex;flex-direction:column;gap:7px;
+}
+.nav button{
+  border:none;background:transparent;
+  display:flex;align-items:center;gap:10px;
+  padding:11px 12px;border-radius:12px;
+  color:#4d5567;text-align:right;
+}
+.nav button:hover{background:#f6f7fb}
+.nav button.active{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.nav .icon{
+  width:27px;height:27px;border-radius:9px;
+  display:grid;place-items:center;background:#f1f3f8;
+  font-size:13px;
+}
+.nav button.active .icon{background:#fff}
+.sidebar-bottom{
+  margin-top:24px;padding:14px;border-radius:14px;background:#fafbfe;border:1px solid var(--line);
+}
+.sidebar-bottom label{font-size:12px;color:var(--muted);display:block;margin-bottom:7px}
+.lang-select{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff}
+.main{padding:24px 26px 40px;min-width:0}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;margin-bottom:22px;
+}
+.title-wrap h2{margin:0;font-size:25px}
+.title-wrap p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.top-actions{display:flex;gap:9px;align-items:center}
+.btn{
+  border:none;border-radius:12px;padding:10px 15px;
+  background:#fff;border:1px solid var(--line);color:#41495a;
+}
+.btn:hover{box-shadow:var(--shadow)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.soft{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.btn.small{padding:7px 10px;font-size:12px}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.stats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px;
+}
+.stat{padding:16px}
+.stat .kicker{color:var(--muted);font-size:12px}
+.stat .num{font-size:26px;font-weight:800;margin:6px 0 2px}
+.stat .sub{font-size:12px;color:var(--muted)}
+.grid-2{display:grid;grid-template-columns:1.25fr .75fr;gap:16px}
+.section-card{padding:17px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.section-head h3{margin:0;font-size:16px}
+.section-head span{font-size:12px;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:9px}
+.item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px;border:1px solid var(--line);border-radius:13px;background:#fff;
+}
+.item:hover{background:#fcfcff}
+.item-main{display:flex;align-items:center;gap:10px;min-width:0}
+.avatar{
+  width:35px;height:35px;border-radius:11px;background:var(--accent-soft);color:var(--accent);
+  display:grid;place-items:center;font-weight:800;flex:0 0 auto;
+}
+.item-text{min-width:0}
+.item-title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-sub{font-size:12px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 8px;border-radius:999px;font-size:11px;font-weight:700;
+}
+.badge.red{background:var(--danger-soft);color:#c54b57}
+.badge.pink{background:var(--pink-soft);color:#b76b87}
+.badge.yellow{background:var(--yellow-soft);color:#927220}
+.badge.green{background:var(--success-soft);color:#3b8a68}
+.badge.gray{background:#f0f2f6;color:#697184}
+.toolbar{
+  display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px
+}
+.search{
+  flex:1;min-width:180px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;
+}
+.select{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff}
+.table-wrap{overflow:auto;border-radius:16px;border:1px solid var(--line);background:#fff}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:right;font-size:13px}
+th{background:#fafbfe;color:#6d7483;font-size:12px;font-weight:700;position:sticky;top:0}
+tr:hover td{background:#fcfcff}
+.link-btn{border:none;background:none;color:var(--accent);font-weight:700;padding:0}
+.page{display:none}
+.page.active{display:block}
+.student-header{
+  padding:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:15px;
+}
+.student-title{display:flex;align-items:center;gap:12px}
+.student-title .avatar{width:47px;height:47px;border-radius:15px;font-size:17px}
+.student-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.meta-chip{padding:6px 9px;border-radius:9px;background:#f7f8fb;color:#626a7b;font-size:12px;border:1px solid #eef0f4}
+.staff-links button{border:none;background:none;color:var(--accent);padding:0;font-weight:700}
+.quad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:15px}
+.mini-panel{padding:15px;min-height:185px}
+.mini-panel h3{margin:0 0 10px;font-size:15px}
+.mini-panel .hint{font-size:12px;color:var(--muted);margin-bottom:9px}
+.panel-entry{
+  padding:10px;border:1px solid var(--line);border-radius:11px;margin-bottom:8px;background:#fcfcfe;
+}
+.panel-entry strong{font-size:13px}
+.panel-entry p{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.45}
+.comm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.comm{padding:14px}
+.comm h4{margin:0 0 8px;font-size:14px}
+.empty{font-size:12px;color:var(--muted);padding:12px;border:1px dashed var(--line);border-radius:10px;text-align:center}
+.schedule-wrap{display:grid;grid-template-columns:165px 1fr;gap:14px}
+.mini-calendar{padding:14px;height:max-content}
+.week-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.calendar-grid{
+  display:grid;grid-template-columns:80px repeat(5,minmax(120px,1fr));
+  border:1px solid var(--line);border-radius:15px;overflow:auto;background:#fff
+}
+.cal-head,.cal-time,.cal-cell{padding:8px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);min-height:48px;font-size:12px}
+.cal-head{background:#fafbfe;font-weight:700;position:sticky;top:0;z-index:2}
+.cal-time{background:#fafbfe;color:var(--muted);font-size:11px;position:sticky;right:0}
+.appt{
+  border-radius:9px;padding:6px 7px;background:var(--accent-soft);color:#4f5cd4;font-weight:700;font-size:11px;
+}
+.appt.red{background:var(--danger-soft);color:#c34a55}
+.appt.pink{background:var(--pink-soft);color:#ad6582}
+.appt.yellow{background:var(--yellow-soft);color:#8f701f}
+.task-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.task-col{padding:14px}
+.task-col h3{margin:0 0 12px;font-size:15px}
+.task-card{padding:11px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:#fff}
+.task-card .task-title{font-weight:700;font-size:13px}
+.task-card .task-meta{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+.chat-layout{display:grid;grid-template-columns:270px 1fr;gap:14px;height:620px}
+.chat-list{padding:10px;overflow:auto}
+.chat-person{padding:11px;border-radius:12px;display:flex;gap:9px;align-items:center}
+.chat-person.active{background:var(--accent-soft)}
+.chat-window{display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+.chat-head{padding:13px 15px;border-bottom:1px solid var(--line);font-weight:700}
+.messages{padding:16px;overflow:auto;background:#fbfcff;display:flex;flex-direction:column;gap:9px}
+.msg{max-width:72%;padding:10px 12px;border-radius:14px;background:#fff;border:1px solid var(--line);font-size:13px}
+.msg.me{align-self:flex-start;background:var(--accent-soft);border-color:#dfe2ff}
+.msg.other{align-self:flex-end}
+.msg small{display:block;color:var(--muted);font-size:10px;margin-top:5px}
+.chat-compose{padding:12px;border-top:1px solid var(--line);display:flex;gap:8px}
+.chat-compose input{flex:1;border:1px solid var(--line);border-radius:12px;padding:10px}
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(31,36,51,.28);display:none;align-items:center;justify-content:center;padding:20px;z-index:50
+}
+.modal-backdrop.show{display:flex}
+.modal{width:min(720px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;box-shadow:0 30px 80px rgba(25,30,45,.22);padding:20px}
+.modal h3{margin:0 0 15px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:10px;background:#fff}
+.modal-actions{display:flex;justify-content:flex-start;gap:8px;margin-top:15px}
+.toast{
+  position:fixed;left:24px;bottom:24px;background:#202532;color:#fff;padding:10px 14px;border-radius:12px;
+  opacity:0;transform:translateY(8px);transition:.2s;z-index:100;font-size:12px
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.import-summary{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fafbfe;margin-bottom:12px
+}
+.import-summary strong{font-size:13px}
+.mapping-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 14px
+}
+.mapping-row{
+  display:grid;grid-template-columns:1fr 26px 1fr;align-items:center;gap:7px;
+  padding:8px;border:1px solid var(--line);border-radius:11px;background:#fff
+}
+.mapping-row .source{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:700
+}
+.mapping-row .arrow{text-align:center;color:var(--muted)}
+.mapping-row select{width:100%;border:1px solid var(--line);border-radius:9px;padding:7px;background:#fff;font-size:12px}
+.preview-wrap{
+  overflow:auto;border:1px solid var(--line);border-radius:12px;max-height:260px
+}
+.preview-wrap table{min-width:680px}
+.import-help{font-size:12px;color:var(--muted);line-height:1.5;margin:7px 0 0}
+
+@media(max-width:1050px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.schedule-wrap,.chat-layout{grid-template-columns:1fr}
+  .chat-layout{height:auto}
+  .chat-list{max-height:240px}
+}
+@media(max-width:820px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto;border-left:none;border-bottom:1px solid var(--line)}
+  .nav{display:grid;grid-template-columns:repeat(3,1fr)}
+  .main{padding:16px}
+  .quad,.comm-grid,.task-board,.form-grid{grid-template-columns:1fr}
+}
+
+
+/* ===== V3 MATURE COLOR + TRUE RTL/LTR LAYOUT ===== */
+body{
+  background:
+    radial-gradient(circle at 12% 8%,rgba(154,116,132,.08),transparent 28%),
+    radial-gradient(circle at 88% 92%,rgba(112,91,127,.07),transparent 26%),
+    var(--bg);
+}
+.card{border-color:var(--line);box-shadow:var(--shadow)}
+.card:hover{box-shadow:var(--shadow-strong)}
+.sidebar{background:linear-gradient(180deg,#fff 0%,#fbf8fb 100%)}
+.btn{transition:.16s ease;box-shadow:0 1px 0 rgba(43,38,51,.02)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(58,45,67,.08)}
+.btn.primary{background:linear-gradient(135deg,#675373,#856678);border-color:#675373}
+.btn.soft{background:linear-gradient(135deg,#f4eff6,#eee7f2);color:#675373}
+.nav button.active{background:linear-gradient(90deg,#f3edf5,#faf7fa);color:#675373}
+.nav .icon{background:#f2eef3;color:#66566f}
+.avatar{background:linear-gradient(135deg,#f0e8f3,#f8edf1);color:#6b566f;border:1px solid #e5d8e5}
+.meta-chip{background:#faf8fa;border-color:#ece6ed;color:#5f5965}
+.item,.panel-entry,.task-card{border-color:#e7e1e8}
+.item:hover,tr:hover td{background:#fbf8fb}
+th{background:#f8f5f8;color:#655f69}
+.badge.green{background:var(--success-soft);color:#566d89}
+.chat-head{background:linear-gradient(90deg,#fbf8fb,#fff)}
+.msg.me{background:#f1ebf4;border-color:#dfd2e4}
+.appt{background:#efe8f2;color:#65516f}
+
+/* Physical layout is explicit so RTL never moves the sidebar to the wrong side. */
+html[dir="rtl"] .app{
+  direction:ltr;
+  grid-template-columns:minmax(0,1fr) 250px;
+  grid-template-areas:"main sidebar";
+}
+html[dir="rtl"] .main{grid-area:main;direction:rtl;text-align:right}
+html[dir="rtl"] .sidebar{grid-area:sidebar;direction:rtl;text-align:right;border-left:1px solid var(--line);border-right:none}
+html[dir="rtl"] .topbar,
+html[dir="rtl"] .toolbar,
+html[dir="rtl"] .section-head,
+html[dir="rtl"] .student-header,
+html[dir="rtl"] .student-title,
+html[dir="rtl"] .student-meta,
+html[dir="rtl"] .item,
+html[dir="rtl"] .item-main,
+html[dir="rtl"] .week-controls,
+html[dir="rtl"] .chat-compose,
+html[dir="rtl"] .modal-actions{direction:rtl}
+html[dir="rtl"] .student-meta{justify-content:flex-start}
+html[dir="rtl"] th,html[dir="rtl"] td{text-align:right}
+html[dir="rtl"] .nav button{text-align:right}
+html[dir="rtl"] .staff-links button{text-align:right}
+html[dir="rtl"] .modal,html[dir="rtl"] .field,html[dir="rtl"] .mini-panel,html[dir="rtl"] .comm{text-align:right}
+html[dir="rtl"] .messages{direction:rtl}
+html[dir="rtl"] .msg.me{align-self:flex-start}
+html[dir="rtl"] .msg.other{align-self:flex-end}
+
+html[dir="ltr"] .app{
+  direction:ltr;
+  grid-template-columns:250px minmax(0,1fr);
+  grid-template-areas:"sidebar main";
+}
+html[dir="ltr"] .main{grid-area:main;direction:ltr;text-align:left}
+html[dir="ltr"] .sidebar{grid-area:sidebar;direction:ltr;text-align:left;border-right:1px solid var(--line);border-left:none}
+html[dir="ltr"] .topbar,
+html[dir="ltr"] .toolbar,
+html[dir="ltr"] .section-head,
+html[dir="ltr"] .student-header,
+html[dir="ltr"] .student-title,
+html[dir="ltr"] .student-meta,
+html[dir="ltr"] .item,
+html[dir="ltr"] .item-main,
+html[dir="ltr"] .week-controls,
+html[dir="ltr"] .chat-compose,
+html[dir="ltr"] .modal-actions{direction:ltr}
+html[dir="ltr"] .student-meta{justify-content:flex-start}
+html[dir="ltr"] th,html[dir="ltr"] td{text-align:left}
+html[dir="ltr"] .nav button{text-align:left}
+html[dir="ltr"] .modal,html[dir="ltr"] .field,html[dir="ltr"] .mini-panel,html[dir="ltr"] .comm{text-align:left}
+
+/* Staff assignment chips are deliberately grouped at the leading edge. */
+.staff-assignment-chip{font-weight:700;border-color:#ded4e1;background:#f7f2f7}
+.staff-assignment-chip .staff-links button{color:#6a526f}
+
+@media(max-width:820px){
+  html[dir="rtl"] .app,html[dir="ltr"] .app{display:block}
+  html[dir="rtl"] .sidebar,html[dir="ltr"] .sidebar{position:relative;width:100%;height:auto;border-left:none;border-right:none;border-bottom:1px solid var(--line)}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="main">
+    <div class="topbar">
+      <div class="title-wrap">
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageSub">אלעס וויכטיג אויף איין קלארן פלאץ</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn soft" id="quickTaskBtn">+ Task</button>
+        <button class="btn primary" id="addStudentTop">+ Add Student</button>
+      </div>
+    </div>
+
+    <section class="page active" id="dashboardPage">
+      <div class="stats">
+        <div class="card stat"><div class="kicker">היינט</div><div class="num" id="todayCount">3</div><div class="sub">Appointments / Reviews</div></div>
+        <div class="card stat"><div class="kicker">די וואך</div><div class="num">8</div><div class="sub">Open items</div></div>
+        <div class="card stat"><div class="kicker">Overdue</div><div class="num">2</div><div class="sub">Needs attention</div></div>
+        <div class="card stat"><div class="kicker">Unread chats</div><div class="num">4</div><div class="sub">New messages</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card section-card">
+          <div class="section-head"><h3>היינט / נעקסטע</h3><span>Reminder colors</span></div>
+          <div class="list" id="dashboardAppointments"></div>
+        </div>
+        <div class="card section-card">
+          <div class="section-head"><h3>Needs Follow-up</h3><button class="btn small" onclick="showPage('tasks')">Open tasks</button></div>
+          <div class="list">
+            <div class="item"><div class="item-main"><div class="avatar">MR</div><div class="item-text"><div class="item-title">Review progress with provider</div><div class="item-sub">Mordechai Rubin · due today</div></div></div><span class="badge red">Today</span></div>
+            <div class="item"><div class="item-main"><div class="avatar">YS</div><div class="item-text"><div class="item-title">Finish evaluation note</div><div class="item-sub">Yitzchok Schwartz</div></div></div><span class="badge yellow">Next week</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="studentsPage">
+      <div class="toolbar">
+        <input class="search" id="studentSearch" placeholder="Search student..." />
+        <select class="select" id="studentFilter">
+          <option value="">All status</option>
+          <option>Collecting</option><option>Evaluation</option><option>Assigned</option><option>Provided</option>
+        </select>
+        <button class="btn" id="importExcelBtn">⇧ Import Excel</button>
+        <input type="file" id="excelFileInput" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none" />
+        <button class="btn primary" id="addStudentBtn">+ Add Student</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-en="Name" data-yi="נאמען">נאמען</th><th data-en="Father" data-yi="טאטע">טאטע</th><th data-en="Grade" data-yi="כתה">כתה</th><th data-en="Teacher" data-yi="מלמד">מלמד</th><th data-en="Provider" data-yi="פערווידער">פערווידער</th><th data-en="Supervisor" data-yi="סופערווייזער">סופערווייזער</th><th data-en="Coordinator" data-yi="קארדינעיטאר">קארדינעיטאר</th><th data-en="Status" data-yi="סטאטוס">סטאטוס</th><th data-en="Next" data-yi="קומענדיגע">קומענדיגע</th>
+          </tr></thead>
+          <tbody id="studentsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="page" id="studentDetailPage">
+      <div class="card student-header">
+        <div>
+          <div class="student-title">
+            <div class="avatar" id="studentAvatar">MR</div>
+            <div><h2 id="studentName" style="margin:0">Mordechai Rubin</h2><div class="student-meta" id="studentMeta"></div></div>
+          </div>
+        </div>
+        <button class="btn" onclick="showPage('students')">← Students</button>
+      </div>
+      <div class="quad">
+        <div class="card mini-panel">
+          <div class="section-head"><h3>Goals</h3><button class="btn small" onclick="addPanelEntry('goalsList','Goal')">+ Add</button></div>
+          <div class="hint">Category → Subcategory → Goal</div>
+          <div id="goalsList">
+            <div class="panel-entry"><strong>Comprehension</strong><p>Retell a short lesson with 3 main points independently.</p></div>
+            <div class="panel-entry"><strong>Executive Skills</strong><p>Begin assigned work within 2 minutes with one verbal prompt.</p></div>
+          </div>
+        </div>
+        <div class="card mini-panel">
+          <div class="section-head"><h3>Strategies / Plans</h3><button class="btn small" onclick="addPanelEntry('plansList','Strategy')">+ Add</button></div>
+          <div class="hint">Supervisor plan visible to provider</div>
+          <div id="plansList">
+            <div class="panel-entry"><strong>Chunking</strong><p>Teach one small step, then ask for a short recap.</p></div>
+            <div class="panel-entry"><strong>Visual sequence</strong><p>Use 3-step boxes: start → middle → finish.</p></div>
+          </div>
+        </div>
+        <div class="card mini-panel">
+          <div class="section-head"><h3>Notes</h3><button class="btn small" onclick="openQuickNote('Note')">+ Note</button></div>
+          <div class="hint">Document-style notes · autosave idea</div>
+          <div id="notesList"><div class="panel-entry"><strong>Session note · Aug 11</strong><p>Stayed engaged longer when material was broken into short steps.</p></div></div>
+        </div>
+        <div class="card mini-panel">
+          <div class="section-head"><h3>Updates</h3><button class="btn small" onclick="openQuickNote('Update')">+ Update</button></div>
+          <div class="hint">Progress + who + date + share</div>
+          <div id="updatesList"><div class="panel-entry"><strong>Provider update</strong><p>Improved recall with visual support. Follow-up next week.</p></div></div>
+        </div>
+      </div>
+      <div class="comm-grid">
+        <div class="card comm"><h4>Parent Call / Talk</h4><div class="empty">No open follow-up</div></div>
+        <div class="card comm"><h4>Parent Meeting</h4><div class="empty">Next meeting not scheduled</div></div>
+        <div class="card comm"><h4>Teacher / Principal</h4><div class="panel-entry"><strong>Teacher update</strong><p>Asked to watch initiation during independent work.</p></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="staffPage">
+      <div class="stats">
+        <div class="card stat"><div class="kicker">Providers</div><div class="num">12</div><div class="sub">Active staff</div></div>
+        <div class="card stat"><div class="kicker">Supervisors</div><div class="num">4</div><div class="sub">Assigned teams</div></div>
+        <div class="card stat"><div class="kicker">Coordinators</div><div class="num">3</div><div class="sub">Program coverage</div></div>
+        <div class="card stat"><div class="kicker">Reviews due</div><div class="num">6</div><div class="sub">This week</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card section-card"><div class="section-head"><h3>Staff overview</h3><span>Click a person for details</span></div><div class="list">
+          <div class="item"><div class="item-main"><div class="avatar">RP</div><div class="item-text"><div class="item-title">Reb Pinchos — Provider</div><div class="item-sub">7 students · 2 items due</div></div></div><span class="badge green">Active</span></div>
+          <div class="item"><div class="item-main"><div class="avatar">SW</div><div class="item-text"><div class="item-title">S. Weiss — Supervisor</div><div class="item-sub">18 students · 4 providers</div></div></div><span class="badge gray">Supervisor</span></div>
+          <div class="item"><div class="item-main"><div class="avatar">MC</div><div class="item-text"><div class="item-title">M. Cohen — Coordinator</div><div class="item-sub">31 students assigned</div></div></div><span class="badge gray">Coordinator</span></div>
+        </div></div>
+        <div class="card section-card"><div class="section-head"><h3>Permissions</h3><span>Role based</span></div>
+          <div class="panel-entry"><strong>Admin</strong><p>Full access + roles + dropdowns.</p></div>
+          <div class="panel-entry"><strong>Supervisor</strong><p>Assigned children + goals/plans + notes/chat.</p></div>
+          <div class="panel-entry"><strong>Provider</strong><p>Own students only. Read goals/plans; write notes/updates/chat.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="schedulePage">
+      <div class="schedule-wrap">
+        <div class="card mini-calendar">
+          <div class="section-head"><h3>Calendar</h3><span>Week jump</span></div>
+          <input type="date" class="select" style="width:100%" id="weekDate"/>
+          <div style="height:10px"></div>
+          <button class="btn primary" style="width:100%" onclick="toast('New appointment form ready')">+ Appointment</button>
+          <div style="margin-top:14px;font-size:12px;color:var(--muted);line-height:1.8">
+            <div><span class="badge red">Red</span> today</div>
+            <div><span class="badge pink">Pink</span> this week</div>
+            <div><span class="badge yellow">Yellow</span> next week</div>
+          </div>
+        </div>
+        <div>
+          <div class="week-controls">
+            <div><strong id="weekLabel">Weekly Schedule</strong><div style="font-size:12px;color:var(--muted);margin-top:3px">30 minute slots</div></div>
+            <div><button class="btn small" onclick="shiftWeek(-7)">Previous</button> <button class="btn small" onclick="shiftWeek(7)">Next</button></div>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="tasksPage">
+      <div class="toolbar">
+        <button class="btn primary" onclick="openTaskModal()">+ New Task</button>
+        <select class="select"><option>All staff</option><option>Provider</option><option>Supervisor</option><option>Coordinator</option></select>
+        <select class="select"><option>All priority</option><option>High</option><option>Normal</option></select>
+      </div>
+      <div class="task-board">
+        <div class="card task-col"><h3>Open</h3><div id="taskOpen"></div></div>
+        <div class="card task-col"><h3>In progress</h3><div id="taskProgress"></div></div>
+        <div class="card task-col"><h3>Done</h3><div id="taskDone"></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="chatPage">
+      <div class="chat-layout">
+        <div class="card chat-list">
+          <div class="section-head"><h3>Chats</h3><span>4 unread</span></div>
+          <div class="chat-person active"><div class="avatar">MR</div><div><strong>Mordechai Rubin</strong><div class="item-sub">Provider + Supervisor</div></div></div>
+          <div class="chat-person"><div class="avatar">YS</div><div><strong>Yitzchok Schwartz</strong><div class="item-sub">Coordinator chat</div></div></div>
+          <div class="chat-person"><div class="avatar">RP</div><div><strong>Reb Pinchos</strong><div class="item-sub">Staff chat</div></div></div>
+        </div>
+        <div class="card chat-window">
+          <div class="chat-head">Mordechai Rubin · Provider / Supervisor</div>
+          <div class="messages" id="messages">
+            <div class="msg other">I worked on the 3-step recap today. He did better with the visual boxes.<small>Provider · 2:16 PM</small></div>
+            <div class="msg me">Good. Next session try removing one visual prompt and see if he can still retell it.<small>Supervisor · 2:21 PM</small></div>
+          </div>
+          <div class="chat-compose">
+            <button class="btn small" onclick="toast('Voice note button ready')">🎤</button>
+            <button class="btn small" onclick="toast('Attachment button ready')">📎</button>
+            <input id="chatInput" placeholder="Type a message..." />
+            <button class="btn primary" onclick="sendMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">וה</div>
+      <div><h1>והערב</h1><small>Small System · V3</small></div>
+    </div>
+    <div class="nav">
+      <button class="active" data-page="dashboard"><span class="icon">⌂</span><span data-yi="דעשבארד" data-en="Dashboard">דעשבארד</span></button>
+      <button data-page="students"><span class="icon">👤</span><span data-yi="קינדער" data-en="Students">קינדער</span></button>
+      <button data-page="staff"><span class="icon">◎</span><span data-yi="סטעף" data-en="Staff">סטעף</span></button>
+      <button data-page="schedule"><span class="icon">▦</span><span data-yi="סקעדזשול" data-en="Schedule">סקעדזשול</span></button>
+      <button data-page="tasks"><span class="icon">✓</span><span data-yi="טעסקס" data-en="Tasks">טעסקס</span></button>
+      <button data-page="chat"><span class="icon">✉</span><span data-yi="טשעט" data-en="Chat">טשעט</span></button>
+    </div>
+    <div class="sidebar-bottom">
+      <label data-en="Language" data-yi="שפראך">שפראך</label>
+      <select class="lang-select" id="languageSelect">
+        <option value="yi">Yiddish</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </aside>
+</div>
+
+
+<div class="modal-backdrop" id="importModal">
+  <div class="modal" style="width:min(900px,100%)">
+    <h3>Import Students from Excel</h3>
+    <div class="import-summary">
+      <strong id="importFileName">No file selected</strong>
+      <span class="badge gray" id="importRowCount">0 rows</span>
+      <span class="badge green" id="importMatchCount">0 fields matched</span>
+    </div>
+    <div class="import-help">
+      די סיסטעם פרובירט אליין צו פארשטיין Columns ווי Name, Father, Grade, Rebbe/Teacher, Provider, Supervisor, Coordinator, Status און Session Time.
+      קוק איבער די matches און דריק Import All.
+    </div>
+    <div class="mapping-grid" id="mappingGrid"></div>
+
+    <div class="section-head" style="margin-top:4px">
+      <h3 style="font-size:14px">Preview</h3>
+      <span>First 5 rows</span>
+    </div>
+    <div class="preview-wrap">
+      <table>
+        <thead id="importPreviewHead"></thead>
+        <tbody id="importPreviewBody"></tbody>
+      </table>
+    </div>
+
+    <div class="form-grid" style="margin-top:14px">
+      <div class="field">
+        <label>If a student already exists</label>
+        <select id="duplicatePolicy">
+          <option value="update">Update the existing student</option>
+          <option value="skip">Skip duplicate</option>
+          <option value="create">Create another record</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Excel sheet</label>
+        <input id="importSheetName" value="First sheet" disabled />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn primary" id="importAllBtn" onclick="importAllStudents()">Import All</button>
+      <button class="btn" onclick="closeModal('importModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="studentModal">
+  <div class="modal">
+    <h3>Add Student</h3>
+    <div class="form-grid">
+      <div class="field"><label>Name</label><input id="fName"/></div>
+      <div class="field"><label>Father</label><input id="fFather"/></div>
+      <div class="field"><label>Grade</label><input id="fGrade"/></div>
+      <div class="field"><label>Teacher / Melamed</label><input id="fTeacher"/></div>
+      <div class="field"><label>Principal</label><input id="fPrincipal"/></div>
+      <div class="field"><label>Main category/problem</label><select id="fCategory"><option>Comprehension</option><option>Reading</option><option>Executive Skills</option><option>Language</option><option>Behavior/Emotions</option><option>Math</option><option>Memory</option></select></div>
+      <div class="field"><label>Provider</label><input id="fProvider"/></div>
+      <div class="field"><label>Supervisor</label><input id="fSupervisor"/></div>
+      <div class="field"><label>Coordinator</label><input id="fCoordinator"/></div>
+      <div class="field"><label>Session time</label><input id="fTime" placeholder="Tuesday 2:00 PM"/></div>
+      <div class="field"><label>Frequency</label><select id="fFrequency"><option>Weekly</option><option>Every 2 weeks</option><option>Every 3 weeks</option><option>Every 4 weeks</option><option>Every 5 weeks</option><option>Every 6 weeks</option><option>One time</option></select></div>
+      <div class="field"><label>Status</label><select id="fStatus"><option>Collecting</option><option>Evaluation</option><option>Assigned</option><option>Provided</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn primary" onclick="saveStudent()">Save Student</button><button class="btn" onclick="closeModal('studentModal')">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="noteModal">
+  <div class="modal">
+    <h3 id="noteTitle">New Note</h3>
+    <div class="form-grid">
+      <div class="field"><label>Topic</label><input id="noteTopic"/></div>
+      <div class="field"><label>Who</label><input id="noteWho" value="Supervisor"/></div>
+      <div class="field" style="grid-column:1/-1"><label>Details</label><textarea id="noteText" rows="7"></textarea></div>
+      <div class="field"><label>Share with</label><select><option>Private</option><option>Provider</option><option>Supervisor</option><option>Coordinator</option><option>All assigned staff</option></select></div>
+      <div class="field"><label>Attachment</label><input type="file"/></div>
+    </div>
+    <div class="modal-actions"><button class="btn primary" onclick="saveQuickNote()">Save</button><button class="btn" onclick="closeModal('noteModal')">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="taskModal">
+  <div class="modal">
+    <h3>New Task</h3>
+    <div class="form-grid">
+      <div class="field"><label>Student</label><input id="taskStudent"/></div>
+      <div class="field"><label>Task</label><input id="taskText"/></div>
+      <div class="field"><label>Assigned to</label><input id="taskAssigned"/></div>
+      <div class="field"><label>Due date</label><input type="date" id="taskDue"/></div>
+      <div class="field"><label>Priority</label><select id="taskPriority"><option>Normal</option><option>High</option></select></div>
+      <div class="field"><label>Status</label><select id="taskStatus"><option>Open</option><option>In progress</option><option>Done</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn primary" onclick="saveTask()">Save Task</button><button class="btn" onclick="closeModal('taskModal')">Cancel</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const defaultStudents = [
+  {id:1,name:"Mordechai Rubin",father:"Yakov",grade:"ו׳",teacher:"R. Weiss",principal:"R. Klein",provider:"Reb Pinchos",supervisor:"S. Weiss",coordinator:"M. Cohen",category:"Comprehension",status:"Provided",next:"Aug 11 · 2:00 PM",frequency:"Weekly"},
+  {id:2,name:"Yitzchok Schwartz",father:"Dovid",grade:"ו׳",teacher:"R. Strausser",principal:"R. Stern",provider:"R. Levi",supervisor:"S. Weiss",coordinator:"M. Cohen",category:"Executive Skills",status:"Evaluation",next:"Aug 13 · 11:30 AM",frequency:"Every 4 weeks"},
+  {id:3,name:"Naftali Klagsbrun",father:"Moshe",grade:"ח׳",teacher:"R. Eckstein",principal:"R. Berger",provider:"R. Fried",supervisor:"A. Klein",coordinator:"Y. Green",category:"Emotional",status:"Assigned",next:"Aug 18 · 1:00 PM",frequency:"Every 5 weeks"},
+  {id:4,name:"Shimon Liberman",father:"Avrohom",grade:"Older",teacher:"—",principal:"—",provider:"R. Stein",supervisor:"A. Klein",coordinator:"Y. Green",category:"Executive Skills",status:"Provided",next:"Aug 20 · 3:00 PM",frequency:"Every 2 weeks"}
+];
+const defaultTasks = [
+  {id:1,student:"Mordechai Rubin",text:"Review progress with provider",assigned:"Supervisor",due:"2026-08-11",priority:"High",status:"Open"},
+  {id:2,student:"Yitzchok Schwartz",text:"Finish evaluation note",assigned:"Supervisor",due:"2026-08-14",priority:"Normal",status:"In progress"},
+  {id:3,student:"Naftali Klagsbrun",text:"Schedule parent follow-up",assigned:"Coordinator",due:"2026-08-18",priority:"Normal",status:"Open"},
+  {id:4,student:"Shimon Liberman",text:"Update next strategy",assigned:"Supervisor",due:"2026-08-10",priority:"High",status:"Done"}
+];
+let students = JSON.parse(localStorage.getItem("vh_students")||"null") || defaultStudents;
+let tasks = JSON.parse(localStorage.getItem("vh_tasks")||"null") || defaultTasks;
+let currentStudent = students[0];
+let noteMode = "Note";
+let weekOffset = 0;
+
+function initials(name){return name.split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase()}
+function saveLocal(){localStorage.setItem("vh_students",JSON.stringify(students));localStorage.setItem("vh_tasks",JSON.stringify(tasks))}
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1800)
+}
+function showPage(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  const map={dashboard:["dashboardPage","Dashboard","אלעס וויכטיג אויף איין קלארן פלאץ"],students:["studentsPage","Students","שנעל זוכן, פילטערן און עפענען"],staff:["staffPage","Staff","Providers · Supervisors · Coordinators"],schedule:["schedulePage","Schedule","א גאנצע וואך אין 30 מינוט slots"],tasks:["tasksPage","Tasks","קלארע next actions"],chat:["chatPage","Chat / Messages","אמת׳ע back-and-forth communication"]};
+  const [id,title,sub]=map[page]||map.dashboard;
+  document.getElementById(id).classList.add("active");
+  document.getElementById("pageTitle").textContent=title; document.getElementById("pageSub").textContent=sub;
+  if(page==="students") renderStudents();
+  if(page==="tasks") renderTasks();
+  if(page==="schedule") renderCalendar();
+}
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+
+let importHeaders = [];
+let importRows = [];
+let importMapping = {};
+
+const importFields = [
+  {key:"name",label:"Student Name",required:true,aliases:["name","student","student name","child","child name","נאמען","קינד","קינד נאמען"]},
+  {key:"father",label:"Father",aliases:["father","father name","parent","טאטע","טאטע נאמען"]},
+  {key:"grade",label:"Grade / Class",aliases:["grade","class","כיתה","כתה"]},
+  {key:"teacher",label:"Teacher / Rebbe / Melamed",aliases:["teacher","rebbe","rebbi","melamed","רבי","מלמד"]},
+  {key:"principal",label:"Principal",aliases:["principal","menahel","administrator","מנהל","פרינציפל"]},
+  {key:"provider",label:"Provider",aliases:["provider","tutor","teacher provider","פערווידער","טוטער"]},
+  {key:"supervisor",label:"Supervisor",aliases:["supervisor","sup","סופערווייזער","סופער וויזער"]},
+  {key:"coordinator",label:"Coordinator",aliases:["coordinator","coord","קארדינעיטער","קאארדינעיטער","קארדינאטאר"]},
+  {key:"category",label:"Main Problem / Category",aliases:["category","main problem","problem","main concern","concern","קעטאגארי","פראבלעם","עיקר פראבלעם"]},
+  {key:"status",label:"Status",aliases:["status","סטאטוס"]},
+  {key:"next",label:"Session / Next Appointment",aliases:["session","session time","time","appointment","next appointment","next","צייט","סעשאן צייט"]},
+  {key:"frequency",label:"Frequency",aliases:["frequency","schedule frequency","freq","פריקווענסי","סקעדזשול פריקווענסי"]}
+];
+
+function normHeader(v){
+  return String(v ?? "").toLowerCase().trim()
+    .replace(/[\s_\-\/\\.,:;'"()[\]{}]+/g,"");
+}
+function smartFieldForHeader(header){
+  const h=normHeader(header);
+  let best="";
+  for(const f of importFields){
+    const choices=[f.label,f.key,...f.aliases].map(normHeader);
+    if(choices.includes(h)) return f.key;
+  }
+  // Conservative partial matching only for longer aliases.
+  for(const f of importFields){
+    for(const alias of [f.label,...f.aliases]){
+      const a=normHeader(alias);
+      if(a.length>=5 && h.length>=5 && (h.includes(a)||a.includes(h))) return f.key;
+    }
+  }
+  return best;
+}
+function columnLettersToIndex(ref){
+  const letters=String(ref||"").match(/[A-Z]+/i);
+  if(!letters)return 0;
+  let n=0;
+  for(const ch of letters[0].toUpperCase()) n=n*26+(ch.charCodeAt(0)-64);
+  return n-1;
+}
+async function unzipEntry(buffer, entry){
+  const view=new DataView(buffer);
+  const off=entry.localOffset;
+  if(view.getUint32(off,true)!==0x04034b50) throw new Error("Bad XLSX local file header");
+  const nameLen=view.getUint16(off+26,true);
+  const extraLen=view.getUint16(off+28,true);
+  const start=off+30+nameLen+extraLen;
+  const compressed=buffer.slice(start,start+entry.compSize);
+  if(entry.method===0) return new Uint8Array(compressed);
+  if(entry.method===8){
+    if(typeof DecompressionStream==="undefined") throw new Error("This browser cannot unpack XLSX files. Please use Chrome or upload CSV.");
+    const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  throw new Error("Unsupported XLSX compression method: "+entry.method);
+}
+function readZipDirectory(buffer){
+  const view=new DataView(buffer);
+  let eocd=-1;
+  const min=Math.max(0,buffer.byteLength-65557);
+  for(let i=buffer.byteLength-22;i>=min;i--){
+    if(view.getUint32(i,true)===0x06054b50){eocd=i;break;}
+  }
+  if(eocd<0) throw new Error("This does not look like a valid XLSX file.");
+  const count=view.getUint16(eocd+10,true);
+  let pos=view.getUint32(eocd+16,true);
+  const dec=new TextDecoder("utf-8");
+  const entries={};
+  for(let i=0;i<count;i++){
+    if(view.getUint32(pos,true)!==0x02014b50) throw new Error("Invalid XLSX directory.");
+    const method=view.getUint16(pos+10,true);
+    const compSize=view.getUint32(pos+20,true);
+    const uncompSize=view.getUint32(pos+24,true);
+    const nameLen=view.getUint16(pos+28,true);
+    const extraLen=view.getUint16(pos+30,true);
+    const commentLen=view.getUint16(pos+32,true);
+    const localOffset=view.getUint32(pos+42,true);
+    const name=dec.decode(new Uint8Array(buffer,pos+46,nameLen));
+    entries[name]={name,method,compSize,uncompSize,localOffset};
+    pos += 46+nameLen+extraLen+commentLen;
+  }
+  return entries;
+}
+function xmlText(bytes){
+  return new TextDecoder("utf-8").decode(bytes);
+}
+async function parseXlsxFile(file){
+  const buffer=await file.arrayBuffer();
+  const entries=readZipDirectory(buffer);
+
+  let shared=[];
+  if(entries["xl/sharedStrings.xml"]){
+    const data=await unzipEntry(buffer,entries["xl/sharedStrings.xml"]);
+    const doc=new DOMParser().parseFromString(xmlText(data),"application/xml");
+    shared=[...doc.getElementsByTagName("si")].map(si=>
+      [...si.getElementsByTagName("t")].map(t=>t.textContent||"").join("")
+    );
+  }
+
+  const sheetNames=Object.keys(entries)
+    .filter(n=>/^xl\/worksheets\/sheet\d+\.xml$/i.test(n))
+    .sort((a,b)=>{
+      const na=parseInt((a.match(/sheet(\d+)/i)||[])[1]||"0");
+      const nb=parseInt((b.match(/sheet(\d+)/i)||[])[1]||"0");
+      return na-nb;
+    });
+  if(!sheetNames.length) throw new Error("No worksheet found in this XLSX file.");
+  document.getElementById("importSheetName").value=sheetNames[0].split("/").pop();
+
+  const sheetData=await unzipEntry(buffer,entries[sheetNames[0]]);
+  const doc=new DOMParser().parseFromString(xmlText(sheetData),"application/xml");
+  const parsed=[];
+  for(const row of [...doc.getElementsByTagName("row")]){
+    const arr=[];
+    for(const cell of [...row.getElementsByTagName("c")]){
+      const idx=columnLettersToIndex(cell.getAttribute("r"));
+      const t=cell.getAttribute("t")||"";
+      let val="";
+      if(t==="inlineStr"){
+        const is=cell.getElementsByTagName("is")[0];
+        val=is?[...is.getElementsByTagName("t")].map(x=>x.textContent||"").join(""):"";
+      }else{
+        const v=cell.getElementsByTagName("v")[0];
+        const raw=v?(v.textContent||""):"";
+        if(t==="s") val=shared[Number(raw)] ?? raw;
+        else if(t==="b") val=raw==="1"?"TRUE":"FALSE";
+        else val=raw;
+      }
+      arr[idx]=val;
+    }
+    parsed.push(arr);
+  }
+  return parsed;
+}
+function parseCsvText(text){
+  const rows=[];
+  let row=[],cell="",quoted=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i],next=text[i+1];
+    if(ch==='"'){
+      if(quoted && next==='"'){cell+='"';i++;}
+      else quoted=!quoted;
+    }else if(ch==="," && !quoted){
+      row.push(cell);cell="";
+    }else if((ch==="\n"||ch==="\r") && !quoted){
+      if(ch==="\r"&&next==="\n")i++;
+      row.push(cell);cell="";
+      if(row.some(v=>String(v).trim()!=="")) rows.push(row);
+      row=[];
+    }else cell+=ch;
+  }
+  row.push(cell);
+  if(row.some(v=>String(v).trim()!=="")) rows.push(row);
+  return rows;
+}
+async function parseImportFile(file){
+  const lower=file.name.toLowerCase();
+  let matrix;
+  if(lower.endsWith(".csv")){
+    matrix=parseCsvText(await file.text());
+    document.getElementById("importSheetName").value="CSV";
+  }else if(lower.endsWith(".xlsx")){
+    matrix=await parseXlsxFile(file);
+  }else{
+    throw new Error("Please choose an .xlsx or .csv file.");
+  }
+  while(matrix.length && !matrix[0].some(v=>String(v??"").trim()!=="")) matrix.shift();
+  if(matrix.length<2) throw new Error("The file needs a header row and at least one student row.");
+  const width=Math.max(...matrix.map(r=>r.length));
+  importHeaders=Array.from({length:width},(_,i)=>String(matrix[0][i]??"").trim()||`Column ${i+1}`);
+  importRows=matrix.slice(1).filter(r=>r.some(v=>String(v??"").trim()!==""));
+  importMapping={};
+  importHeaders.forEach((h,i)=>{ importMapping[i]=smartFieldForHeader(h); });
+}
+function escapeHtml(v){
+  return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+}
+function renderImportPreview(fileName){
+  document.getElementById("importFileName").textContent=fileName;
+  document.getElementById("importRowCount").textContent=`${importRows.length} rows`;
+
+  const opts=['<option value="">— Do not import —</option>']
+    .concat(importFields.map(f=>`<option value="${f.key}">${f.label}${f.required?" *":""}</option>`)).join("");
+
+  const grid=document.getElementById("mappingGrid");
+  grid.innerHTML=importHeaders.map((h,i)=>`
+    <div class="mapping-row">
+      <div class="source" title="${escapeHtml(h)}">${escapeHtml(h)}</div>
+      <div class="arrow">→</div>
+      <select data-map-index="${i}">${opts}</select>
+    </div>`).join("");
+
+  grid.querySelectorAll("select").forEach(sel=>{
+    const i=Number(sel.dataset.mapIndex);
+    sel.value=importMapping[i]||"";
+    sel.addEventListener("change",()=>{
+      importMapping[i]=sel.value;
+      updateImportMatchCount();
+    });
+  });
+  updateImportMatchCount();
+
+  document.getElementById("importPreviewHead").innerHTML="<tr>"+importHeaders.map(h=>`<th>${escapeHtml(h)}</th>`).join("")+"</tr>";
+  document.getElementById("importPreviewBody").innerHTML=importRows.slice(0,5).map(r=>
+    "<tr>"+importHeaders.map((_,i)=>`<td>${escapeHtml(r[i]??"")}</td>`).join("")+"</tr>"
+  ).join("");
+}
+function updateImportMatchCount(){
+  const matched=Object.values(importMapping).filter(Boolean).length;
+  document.getElementById("importMatchCount").textContent=`${matched} fields matched`;
+}
+function normalizePerson(v){return String(v??"").trim().toLowerCase().replace(/\s+/g," ")}
+function rowValue(row,key){
+  const found=Object.entries(importMapping).find(([idx,k])=>k===key);
+  if(!found)return "";
+  return String(row[Number(found[0])]??"").trim();
+}
+function importAllStudents(){
+  const nameMapped=Object.values(importMapping).includes("name");
+  if(!nameMapped){toast("Match one Excel column to Student Name");return;}
+  const policy=document.getElementById("duplicatePolicy").value;
+  let created=0,updated=0,skipped=0;
+
+  for(const row of importRows){
+    const name=rowValue(row,"name");
+    if(!name){skipped++;continue;}
+    const father=rowValue(row,"father");
+    const existing=students.find(s=>{
+      if(normalizePerson(s.name)!==normalizePerson(name))return false;
+      if(father) return normalizePerson(s.father)===normalizePerson(father);
+      return true;
+    });
+
+    const incoming={
+      name,
+      father:rowValue(row,"father")||"—",
+      grade:rowValue(row,"grade")||"—",
+      teacher:rowValue(row,"teacher")||"—",
+      principal:rowValue(row,"principal")||"—",
+      provider:rowValue(row,"provider")||"—",
+      supervisor:rowValue(row,"supervisor")||"—",
+      coordinator:rowValue(row,"coordinator")||"—",
+      category:rowValue(row,"category")||"—",
+      status:rowValue(row,"status")||"Collecting",
+      next:rowValue(row,"next")||"Not scheduled",
+      frequency:rowValue(row,"frequency")||"One time"
+    };
+
+    if(existing && policy==="skip"){skipped++;continue;}
+    if(existing && policy==="update"){
+      for(const [k,v] of Object.entries(incoming)){
+        if(v && v!=="—" && v!=="Not scheduled") existing[k]=v;
+      }
+      updated++;
+      continue;
+    }
+    students.push({id:Date.now()+created+Math.floor(Math.random()*1000),...incoming});
+    created++;
+  }
+  saveLocal();
+  renderStudents();
+  closeModal("importModal");
+  toast(`Import finished: ${created} added, ${updated} updated, ${skipped} skipped`);
+}
+async function handleExcelFile(file){
+  if(!file)return;
+  try{
+    document.getElementById("importAllBtn").disabled=true;
+    toast("Reading Excel...");
+    await parseImportFile(file);
+    renderImportPreview(file.name);
+    openModal("importModal");
+  }catch(err){
+    console.error(err);
+    toast(err.message||"Could not read this Excel file");
+  }finally{
+    document.getElementById("importAllBtn").disabled=false;
+    document.getElementById("excelFileInput").value="";
+  }
+}
+document.getElementById("importExcelBtn").addEventListener("click",()=>document.getElementById("excelFileInput").click());
+document.getElementById("excelFileInput").addEventListener("change",e=>handleExcelFile(e.target.files[0]));
+
+function renderStudents(){
+  const q=(document.getElementById("studentSearch").value||"").toLowerCase();
+  const f=document.getElementById("studentFilter").value;
+  const body=document.getElementById("studentsBody"); body.innerHTML="";
+  students.filter(s=>(!f||s.status===f) && Object.values(s).join(" ").toLowerCase().includes(q)).forEach(s=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td><button class="link-btn" onclick="openStudent(${s.id})">${s.name}</button></td><td>${s.father}</td><td>${s.grade}</td><td>${s.teacher}</td><td>${s.provider}</td><td>${s.supervisor}</td><td>${s.coordinator}</td><td><span class="badge gray">${s.status}</span></td><td>${s.next}</td>`;
+    body.appendChild(tr);
+  })
+}
+document.getElementById("studentSearch").addEventListener("input",renderStudents);
+document.getElementById("studentFilter").addEventListener("change",renderStudents);
+
+function uiLabel(key){
+  const dict={
+    yi:{student:"קינד",father:"טאטע",grade:"כתה",teacher:"מלמד",principal:"מנהל",provider:"פערווידער",supervisor:"סופערווייזער",coordinator:"קארדינעיטאר",status:"סטאטוס",next:"קומענדיגע"},
+    en:{student:"Student",father:"Father",grade:"Grade",teacher:"Teacher",principal:"Principal",provider:"Provider",supervisor:"Supervisor",coordinator:"Coordinator",status:"Status",next:"Next"}
+  };
+  const lang=document.documentElement.lang==="en"?"en":"yi";
+  return dict[lang][key]||key;
+}
+function renderStudentMeta(){
+  if(!currentStudent)return;
+  document.getElementById("studentMeta").innerHTML=`
+    <span class="meta-chip">${uiLabel("father")}: ${currentStudent.father}</span>
+    <span class="meta-chip">${uiLabel("grade")}: ${currentStudent.grade}</span>
+    <span class="meta-chip">${uiLabel("teacher")}: ${currentStudent.teacher}</span>
+    <span class="meta-chip">${uiLabel("principal")}: ${currentStudent.principal}</span>
+    <span class="meta-chip staff-assignment-chip">${uiLabel("provider")}: <span class="staff-links"><button onclick="showPage('staff')">${currentStudent.provider}</button></span></span>
+    <span class="meta-chip staff-assignment-chip">${uiLabel("supervisor")}: <span class="staff-links"><button onclick="showPage('staff')">${currentStudent.supervisor}</button></span></span>
+    <span class="meta-chip staff-assignment-chip">${uiLabel("coordinator")}: <span class="staff-links"><button onclick="showPage('staff')">${currentStudent.coordinator}</button></span></span>
+    <span class="meta-chip">${uiLabel("status")}: ${currentStudent.status}</span>
+    <span class="meta-chip">${uiLabel("next")}: ${currentStudent.next}</span>`;
+}
+function openStudent(id){
+  currentStudent=students.find(s=>s.id===id)||students[0];
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("studentDetailPage").classList.add("active");
+  document.getElementById("pageTitle").textContent=uiLabel("student");
+  document.getElementById("pageSub").textContent=document.documentElement.lang==="en"?"One student — everything important on one screen":"איין קינד — אלעס וויכטיג אויף איין סקרין";
+  document.getElementById("studentName").textContent=currentStudent.name;
+  document.getElementById("studentAvatar").textContent=initials(currentStudent.name);
+  renderStudentMeta();
+}
+
+function openModal(id){document.getElementById(id).classList.add("show")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+document.getElementById("addStudentTop").onclick=()=>openModal("studentModal");
+document.getElementById("addStudentBtn").onclick=()=>openModal("studentModal");
+
+function saveStudent(){
+  const name=document.getElementById("fName").value.trim();
+  if(!name){toast("Please enter a name");return}
+  const s={id:Date.now(),name,father:fFather.value||"—",grade:fGrade.value||"—",teacher:fTeacher.value||"—",principal:fPrincipal.value||"—",provider:fProvider.value||"—",supervisor:fSupervisor.value||"—",coordinator:fCoordinator.value||"—",category:fCategory.value,status:fStatus.value,next:fTime.value||"Not scheduled",frequency:fFrequency.value};
+  students.push(s); saveLocal(); closeModal("studentModal"); renderStudents(); toast("Student saved");
+  ["fName","fFather","fGrade","fTeacher","fPrincipal","fProvider","fSupervisor","fCoordinator","fTime"].forEach(id=>document.getElementById(id).value="")
+}
+
+function addPanelEntry(target,type){
+  const text=prompt(`${type} text:`);
+  if(!text)return;
+  const div=document.createElement("div");div.className="panel-entry";div.innerHTML=`<strong>${type}</strong><p>${text}</p>`;
+  document.getElementById(target).prepend(div);toast(type+" added");
+}
+function openQuickNote(mode){
+  noteMode=mode;document.getElementById("noteTitle").textContent="New "+mode;document.getElementById("noteTopic").value="";document.getElementById("noteText").value="";openModal("noteModal")
+}
+function saveQuickNote(){
+  const topic=noteTopic.value||noteMode; const text=noteText.value||"No details";
+  const target=noteMode==="Note"?"notesList":"updatesList";
+  const div=document.createElement("div");div.className="panel-entry";div.innerHTML=`<strong>${topic} · Aug 11</strong><p>${text}</p>`;
+  document.getElementById(target).prepend(div);closeModal("noteModal");toast(noteMode+" saved")
+}
+
+function openTaskModal(){openModal("taskModal")}
+document.getElementById("quickTaskBtn").onclick=openTaskModal;
+function saveTask(){
+  if(!taskText.value.trim()){toast("Enter a task");return}
+  tasks.push({id:Date.now(),student:taskStudent.value||"General",text:taskText.value,assigned:taskAssigned.value||"—",due:taskDue.value||"",priority:taskPriority.value,status:taskStatus.value});
+  saveLocal();renderTasks();closeModal("taskModal");toast("Task saved");
+  taskStudent.value=taskText.value=taskAssigned.value=taskDue.value="";
+}
+function taskHTML(t){
+  return `<div class="task-card"><div class="task-title">${t.text}</div><div class="task-meta">${t.student}<br>${t.assigned} · ${t.due||"No date"} · ${t.priority}</div></div>`
+}
+function renderTasks(){
+  taskOpen.innerHTML=tasks.filter(t=>t.status==="Open").map(taskHTML).join("")||'<div class="empty">No open tasks</div>';
+  taskProgress.innerHTML=tasks.filter(t=>t.status==="In progress").map(taskHTML).join("")||'<div class="empty">Nothing in progress</div>';
+  taskDone.innerHTML=tasks.filter(t=>t.status==="Done").map(taskHTML).join("")||'<div class="empty">Nothing done yet</div>';
+}
+
+function renderDashboard(){
+  const list=document.getElementById("dashboardAppointments");
+  const rows=[
+    ["Mordechai Rubin","Review + provider","Today · 2:00 PM","red","Today"],
+    ["Yitzchok Schwartz","Evaluation follow-up","This week · Thu","pink","This week"],
+    ["Naftali Klagsbrun","Progress review","Next week · Tue","yellow","Next week"],
+    ["Shimon Liberman","Strategy session","Next week · Thu","yellow","Next week"]
+  ];
+  list.innerHTML=rows.map(r=>`<div class="item"><div class="item-main"><div class="avatar">${initials(r[0])}</div><div class="item-text"><div class="item-title">${r[0]}</div><div class="item-sub">${r[1]} · ${r[2]}</div></div></div><span class="badge ${r[3]}">${r[4]}</span></div>`).join("")
+}
+
+function mondayOfWeek(date){
+  const d=new Date(date); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d;
+}
+function shiftWeek(days){weekOffset+=days;renderCalendar()}
+function renderCalendar(){
+  const base=mondayOfWeek(new Date(2026,7,11)); base.setDate(base.getDate()+weekOffset);
+  const days=["Mon","Tue","Wed","Thu","Fri"];
+  const grid=document.getElementById("calendarGrid"); grid.innerHTML="<div class='cal-head'>Time</div>";
+  for(let i=0;i<5;i++){let d=new Date(base);d.setDate(base.getDate()+i);grid.innerHTML+=`<div class="cal-head">${days[i]}<br><span style="font-weight:400;color:var(--muted)">${d.getMonth()+1}/${d.getDate()}</span></div>`}
+  const appts={
+    "10:30-1":"Y. Schwartz",
+    "11:30-3":"Provider mtg",
+    "14:00-2":"M. Rubin",
+    "15:00-4":"N. Klagsbrun"
+  };
+  let mins=10*60+30;
+  while(mins<=17*60){
+    const h=Math.floor(mins/60),m=mins%60; const label=`${h>12?h-12:h}:${String(m).padStart(2,"0")} ${h>=12?"PM":"AM"}`;
+    grid.innerHTML+=`<div class="cal-time">${label}</div>`;
+    for(let c=1;c<=5;c++){
+      const key=`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}-${c}`;
+      const a=appts[key]; const cls=c===2&&h===14?"red":c===3?"pink":c===4?"yellow":"";
+      grid.innerHTML+=`<div class="cal-cell">${a?`<div class="appt ${cls}">${a}</div>`:""}</div>`;
+    }
+    mins+=30;
+  }
+  document.getElementById("weekLabel").textContent=`Week of ${base.toLocaleDateString("en-US",{month:"short",day:"numeric"})}`;
+}
+document.getElementById("weekDate").addEventListener("change",e=>{
+  if(!e.target.value)return;
+  const selected=mondayOfWeek(new Date(e.target.value+"T12:00:00"));
+  const base=mondayOfWeek(new Date(2026,7,11));
+  weekOffset=Math.round((selected-base)/(86400000));renderCalendar();
+});
+
+function sendMessage(){
+  const input=document.getElementById("chatInput"); const text=input.value.trim();if(!text)return;
+  const d=document.createElement("div");d.className="msg me";d.innerHTML=`${text}<small>Supervisor · now</small>`;
+  messages.appendChild(d);input.value="";messages.scrollTop=messages.scrollHeight;toast("Message sent");
+}
+document.getElementById("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendMessage()});
+
+function applyLanguage(lang,notify=true){
+  document.documentElement.dir=lang==="yi"?"rtl":"ltr";
+  document.documentElement.lang=lang;
+  document.body.dataset.language=lang;
+  document.querySelectorAll("[data-yi][data-en]").forEach(el=>el.textContent=el.dataset[lang]);
+  if(document.getElementById("studentDetailPage").classList.contains("active")){
+    document.getElementById("pageTitle").textContent=uiLabel("student");
+    document.getElementById("pageSub").textContent=lang==="yi"?"איין קינד — אלעס וויכטיג אויף איין סקרין":"One student — everything important on one screen";
+    renderStudentMeta();
+  }
+  if(notify)toast(lang==="yi"?"אידיש — רעכטס אויסגעשטעלט":"English — left-to-right");
+}
+document.getElementById("languageSelect").addEventListener("change",e=>applyLanguage(e.target.value,true));
+
+window.addEventListener("click",e=>{
+  if(e.target.classList.contains("modal-backdrop"))e.target.classList.remove("show");
+});
+
+applyLanguage(document.getElementById("languageSelect").value,false);
+renderStudents();renderTasks();renderDashboard();renderCalendar();
+</script>
+</body>
+</html>
